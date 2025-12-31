@@ -7,6 +7,9 @@ edition = "2024_07"
 
 [dependencies]
 starknet = "2.15.0"
+openzeppelin_account = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v2.0.0" }
+openzeppelin_introspection = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v2.0.0" }
+openzeppelin_security = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v2.0.0" }
 
 [dev-dependencies]
 snforge_std = "0.54.1"
