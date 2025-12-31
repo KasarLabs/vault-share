@@ -38,6 +38,151 @@ fn deploy_member_worker_account(
     IMemberWorkerAccountDispatcher { contract_address }
 }
 
+// ========== Batch Operations Tests ==========
+
+#[test]
+fn test_add_members_batch_adds_and_activates() {
+    let admin: ContractAddress = 111.try_into().unwrap();
+    let vault = deploy_team_vault(admin);
+    let member_a: felt252 = 0xAAA;
+    let member_b: felt252 = 0xBBB;
+
+    start_cheat_caller_address(vault.contract_address, admin);
+    vault.add_members(array![member_a, member_b].span());
+    stop_cheat_caller_address(vault.contract_address);
+
+    assert(vault.get_member_exists(member_a), 'member a exists');
+    assert(vault.get_member_is_active(member_a), 'member a active');
+    assert(vault.get_member_exists(member_b), 'member b exists');
+    assert(vault.get_member_is_active(member_b), 'member b active');
+}
+
+#[test]
+fn test_set_members_active_batch() {
+    let admin: ContractAddress = 111.try_into().unwrap();
+    let vault = deploy_team_vault(admin);
+    let member_a: felt252 = 0xAAA;
+    let member_b: felt252 = 0xBBB;
+
+    start_cheat_caller_address(vault.contract_address, admin);
+    vault.add_members(array![member_a, member_b].span());
+    vault.set_members_active(array![member_a, member_b].span(), false);
+    stop_cheat_caller_address(vault.contract_address);
+
+    assert(!vault.get_member_is_active(member_a), 'member a inactive');
+    assert(!vault.get_member_is_active(member_b), 'member b inactive');
+}
+
+#[test]
+fn test_remove_members_batch() {
+    let admin: ContractAddress = 111.try_into().unwrap();
+    let vault = deploy_team_vault(admin);
+    let member_a: felt252 = 0xAAA;
+    let member_b: felt252 = 0xBBB;
+
+    start_cheat_caller_address(vault.contract_address, admin);
+    vault.add_members(array![member_a, member_b].span());
+    vault.remove_members(array![member_a, member_b].span());
+    stop_cheat_caller_address(vault.contract_address);
+
+    assert(!vault.get_member_exists(member_a), 'member a removed');
+    assert(!vault.get_member_exists(member_b), 'member b removed');
+}
+
+#[test]
+fn test_register_workers_batch_happy_path() {
+    let admin: ContractAddress = 111.try_into().unwrap();
+    let vault = deploy_team_vault(admin);
+    let member_a: felt252 = 0xAAA;
+    let member_b: felt252 = 0xBBB;
+
+    let worker_a = deploy_member_worker_account(member_a, vault.contract_address).contract_address;
+    let worker_b = deploy_member_worker_account(member_b, vault.contract_address).contract_address;
+
+    start_cheat_caller_address(vault.contract_address, admin);
+    vault.add_members(array![member_a, member_b].span());
+    vault.register_workers(array![member_a, member_b].span(), array![worker_a, worker_b].span());
+    stop_cheat_caller_address(vault.contract_address);
+
+    assert(vault.get_worker_for_member(member_a) == worker_a, 'worker a set');
+    assert(vault.get_worker_for_member(member_b) == worker_b, 'worker b set');
+    assert(vault.get_member_for_worker(worker_a) == member_a, 'member a via worker');
+    assert(vault.get_member_for_worker(worker_b) == member_b, 'member b via worker');
+}
+
+#[test]
+#[should_panic(expected: "Length mismatch")]
+fn test_register_workers_batch_reverts_on_length_mismatch() {
+    let admin: ContractAddress = 111.try_into().unwrap();
+    let vault = deploy_team_vault(admin);
+    let member_a: felt252 = 0xAAA;
+    let member_b: felt252 = 0xBBB;
+
+    let worker_a = deploy_member_worker_account(member_a, vault.contract_address).contract_address;
+
+    start_cheat_caller_address(vault.contract_address, admin);
+    vault.add_members(array![member_a, member_b].span());
+    // Workers array has length 1, pubkeys length 2
+    vault.register_workers(array![member_a, member_b].span(), array![worker_a].span());
+    stop_cheat_caller_address(vault.contract_address);
+}
+
+#[test]
+fn test_fund_workers_deployment_batch_transfers_strk() {
+    let admin: ContractAddress = 111.try_into().unwrap();
+    let vault = deploy_team_vault(admin);
+    let token = deploy_mock_erc20();
+    let member_a: felt252 = 0xAAA;
+    let member_b: felt252 = 0xBBB;
+
+    // "future" worker addresses (not necessarily deployed yet)
+    let worker_a: ContractAddress = 222.try_into().unwrap();
+    let worker_b: ContractAddress = 333.try_into().unwrap();
+
+    // Fund the vault with mock STRK
+    token.mint(vault.contract_address, 1_000_u256);
+
+    start_cheat_caller_address(vault.contract_address, admin);
+    vault.set_strk_token(token.contract_address);
+    vault.allow_token(token.contract_address);
+    vault.add_members(array![member_a, member_b].span());
+    vault.fund_workers_deployment(
+        array![member_a, member_b].span(),
+        array![worker_a, worker_b].span(),
+        array![10_u256, 20_u256].span()
+    );
+    stop_cheat_caller_address(vault.contract_address);
+
+    assert(token.balance_of(worker_a) == 10_u256, 'worker a funded');
+    assert(token.balance_of(worker_b) == 20_u256, 'worker b funded');
+    assert(token.balance_of(vault.contract_address) == 970_u256, 'vault decreased');
+}
+
+#[test]
+#[should_panic(expected: "Length mismatch")]
+fn test_fund_workers_deployment_batch_reverts_on_length_mismatch() {
+    let admin: ContractAddress = 111.try_into().unwrap();
+    let vault = deploy_team_vault(admin);
+    let token = deploy_mock_erc20();
+    let member_a: felt252 = 0xAAA;
+    let member_b: felt252 = 0xBBB;
+    let worker_a: ContractAddress = 222.try_into().unwrap();
+
+    token.mint(vault.contract_address, 1_000_u256);
+
+    start_cheat_caller_address(vault.contract_address, admin);
+    vault.set_strk_token(token.contract_address);
+    vault.allow_token(token.contract_address);
+    vault.add_members(array![member_a, member_b].span());
+    // members len=2, workers len=1, amounts len=1
+    vault.fund_workers_deployment(
+        array![member_a, member_b].span(),
+        array![worker_a].span(),
+        array![10_u256].span()
+    );
+    stop_cheat_caller_address(vault.contract_address);
+}
+
 #[test]
 fn test_withdraw_happy_path_updates_spent_and_transfers() {
     let admin: ContractAddress = 111.try_into().unwrap();
