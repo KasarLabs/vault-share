@@ -3,27 +3,25 @@
 > A complete treasury solution enabling teams to manage shared funds with individual spending limits and automatic gas sponsorship.
 
 
-## 🎯 What is VaultShare?
+## What is VaultShare?
 
 VaultShare is a smart contract system that allows teams (DAOs, companies, guilds) to manage a shared treasury on Starknet while giving individual members controlled access to funds. Think of it as **corporate cards for your DAO**.
 
 ### Key Features
+- **Shared Treasury** : Central vault holding team funds
+- **Individual Limits** : Each member has customizable spending limits
+- **Gas Sponsorship** :Vault automatically pays transaction fees for members
+- **Multi-Token Support** : Manage any ERC-20 token (STRK, ETH, USDC, etc.)
+- **Pause Mechanism**: Emergency stop for critical situations
 
-✅ **Shared Treasury** - Central vault holding team funds
-✅ **Individual Limits** - Each member has customizable spending limits
-✅ **Gas Sponsorship** - Vault automatically pays transaction fees for members
-✅ **Multi-Token Support** - Manage any ERC-20 token (STRK, ETH, USDC, etc.)
-✅ **Pause Mechanism** - Emergency stop for critical situations
-✅ **Battle-Tested** - Built with OpenZeppelin contracts and reentrancy guards
-
-## 💡 Use Cases
+## Use Cases
 
 - **DAO Operations**: Give council members budgets without exposing the entire treasury
 - **Web3 Teams**: Developers get spending limits for gas and services
 - **Gaming Guilds**: Players access guild funds within their allowances
 - **Investment Funds**: Traders operate with predefined risk limits
 
-## 🏗️ How It Works
+## How It Works
 
 ### The Two-Account System
 
@@ -43,7 +41,7 @@ TeamVault (Treasury)
                 └─ Gas fees paid by vault ✨
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -154,7 +152,7 @@ sncast call \
   --network $NETWORK
 ```
 
-## 📖 Usage Guide
+## Usage Guide
 
 ### For Members: Making Withdrawals
 
@@ -235,7 +233,7 @@ sncast call \
   --network $NETWORK
 ```
 
-## 🔐 Security Features
+## Security Features
 
 ### Reentrancy Protection
 Uses OpenZeppelin's `ReentrancyGuard` component to prevent reentrancy attacks.
