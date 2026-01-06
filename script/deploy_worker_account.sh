@@ -25,25 +25,31 @@ echo "Generating new keypair for worker..."
 TEMP_ACCOUNT_NAME="worker_$(date +%s)"
 
 # Créer le compte avec sncast (génère automatiquement les clés)
-ACCOUNT_CREATE_OUTPUT=$(sncast account create \
+echo "Creating account..."
+sncast account create \
   --name $TEMP_ACCOUNT_NAME \
-  --network mainnet)
+  --network mainnet
 
-# Extraire la clé publique et privée de la sortie
-MEMBER_PUBKEY=$(echo "$ACCOUNT_CREATE_OUTPUT" | grep -oP "Address: \K0x[0-9a-fA-F]+" | head -1)
-
-echo ""
-echo "✓ Keypair generated successfully!"
 echo ""
 echo "⚠️  IMPORTANT - SAVE THESE CREDENTIALS ⚠️"
 echo "================================================"
-echo "$ACCOUNT_CREATE_OUTPUT"
+
+# Afficher les credentials avec la clé privée
+sncast account list --display-private-keys 2>&1 | grep -A 15 "$TEMP_ACCOUNT_NAME:"
+
 echo "================================================"
+
+# Extraire la clé publique
+MEMBER_PUBKEY=$(sncast account list 2>&1 | grep -A 15 "$TEMP_ACCOUNT_NAME:" | grep -oP "public key: \K0x[0-9a-fA-F]+")
+
 echo ""
-echo "Public Key: $MEMBER_PUBKEY"
+echo "✓ Keypair generated successfully!"
+echo "Public Key (for deployment): $MEMBER_PUBKEY"
 echo ""
-echo "⚠️  The private key is shown above - SAVE IT NOW!"
+echo "⚠️  The PRIVATE KEY is shown above - SAVE IT NOW!"
 echo "⚠️  You will need it to sign transactions with this worker"
+echo "⚠️  This is the ONLY time it will be displayed!"
+echo ""
 echo ""
 
 # ---- CONFIGURATION ----
@@ -63,7 +69,7 @@ DEPLOY_OUTPUT=$(sncast deploy \
 echo "$DEPLOY_OUTPUT"
 
 # Extraire l'adresse du worker déployé
-WORKER_ADDRESS=$(echo "$DEPLOY_OUTPUT" | grep -oP "contract_address: \K0x[0-9a-fA-F]+")
+WORKER_ADDRESS=$(echo "$DEPLOY_OUTPUT" | grep -oP "Contract Address: \K0x[0-9a-fA-F]+")
 
 if [ -z "$WORKER_ADDRESS" ]; then
     echo ""
