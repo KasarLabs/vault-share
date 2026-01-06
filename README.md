@@ -55,8 +55,6 @@ curl --proto '=https' --tlsv1.2 -sSf https://docs.swmansion.com/scarb/install.sh
 curl -L https://raw.githubusercontent.com/foundry-rs/starknet-foundry/master/scripts/install.sh | sh
 ```
 
-### 1. Deploy the Vault
-
 ```bash
 # Clone the repository
 git clone <your-repo>
@@ -64,8 +62,20 @@ cd vault-share
 
 # Build contracts
 scarb build
+```
 
-# Deploy TeamVault
+```bash
+# Register a wallet to be able to deploy and read/write contracts
+sncast account import \
+  --network mainnet \
+  --address 0x123456 \
+  --private-key 0x789123 \
+  --type argent
+```
+
+### 1. Deploy the Vault
+
+```bash
 ./script/deploy_team_vault.sh <ADMIN_ADDRESS>
 # Save the returned vault address: VAULT_ADDRESS=0x...
 ```

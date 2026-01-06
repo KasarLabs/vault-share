@@ -5,3 +5,8 @@
 url = "https://starknet-mainnet.g.alchemy.com/starknet/version/rpc/v0_8/jnnUmSBclU68FPzLCWcfz"
 block-explorer = "Voyager"
 show-explorer-links = true
+
+[sncast.sepolia]
+url = "https://starknet-sepolia.g.alchemy.com/starknet/version/rpc/v0_8/jnnUmSBclU68FPzLCWcfz"
+block-explorer = "Voyager"
+show-explorer-links = true

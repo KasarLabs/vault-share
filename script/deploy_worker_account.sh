@@ -7,6 +7,7 @@ set -e
 
 # ---- INPUTS ----
 VAULT_ADDRESS=$1
+NETWORK=${2:-mainnet}
 
 if [ -z "$VAULT_ADDRESS" ]; then
     echo "Error: VAULT_ADDRESS is required"
@@ -28,7 +29,7 @@ TEMP_ACCOUNT_NAME="worker_$(date +%s)"
 echo "Creating account..."
 sncast account create \
   --name $TEMP_ACCOUNT_NAME \
-  --network mainnet
+  --network $NETWORK
 
 echo ""
 echo "⚠️  IMPORTANT - SAVE THESE CREDENTIALS ⚠️"
@@ -63,11 +64,10 @@ echo ""
 
 DEPLOY_OUTPUT=$(sncast deploy \
   --contract-name $CONTRACT_NAME \
-  --network mainnet \
+  --network $NETWORK \
   --arguments $MEMBER_PUBKEY)
 
 echo "$DEPLOY_OUTPUT"
-
 # Extraire l'adresse du worker déployé
 WORKER_ADDRESS=$(echo "$DEPLOY_OUTPUT" | grep -oP "Contract Address: \K0x[0-9a-fA-F]+")
 
@@ -89,7 +89,7 @@ sncast invoke \
   --contract-address $WORKER_ADDRESS \
   --function set_vault \
   --arguments $VAULT_ADDRESS \
-  --network mainnet
+  --network $NETWORK
 
 echo ""
 echo "✓ Vault address configured!"
