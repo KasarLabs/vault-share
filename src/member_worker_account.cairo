@@ -2,6 +2,7 @@
 pub trait IMemberWorkerAccount<TContractState> {
     fn get_vault(self: @TContractState) -> starknet::ContractAddress;
     fn get_member_pubkey(self: @TContractState) -> felt252;
+    fn set_vault(ref self: TContractState, vault: starknet::ContractAddress);
 }
 
 #[starknet::contract(account)]
@@ -50,15 +51,12 @@ pub mod MemberWorkerAccount {
         SRC9Event: SRC9Component::Event,
     }
 
-    #[constructor]
-    fn constructor(ref self: ContractState, public_key: felt252, vault: ContractAddress) {
-        assert!(public_key != 0, "Pubkey is zero");
-        let zero_vault: ContractAddress = 0.try_into().unwrap();
-        assert!(vault != zero_vault, "Vault is zero");
-        self.account.initializer(public_key);
-        self.src9.initializer();
-        self.vault.write(vault);
-    }
+#[constructor]
+fn constructor(ref self: ContractState, public_key: felt252) {
+    assert!(public_key != 0, "Pubkey is zero");
+    self.account.initializer(public_key);
+    self.src9.initializer();
+}
 
     #[abi(embed_v0)]
     pub impl MemberWorkerAccountImpl of super::IMemberWorkerAccount<ContractState> {
@@ -69,5 +67,13 @@ pub mod MemberWorkerAccount {
         fn get_member_pubkey(self: @ContractState) -> felt252 {
             AccountMixinImpl::get_public_key(self)
         }
+
+        fn set_vault(ref self: ContractState, vault: ContractAddress) {
+            let zero: ContractAddress = 0.try_into().unwrap();
+            assert!(vault != zero, "Vault is zero");
+            self.vault.write(vault);
+        }
     }
+
+    
 }
