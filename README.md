@@ -170,7 +170,6 @@ sncast invoke \
   --account alice-worker \
   --network sepolia
 
-# ✨ Gas fees are automatically paid by the vault!
 ```
 
 ### For Admins: Management Operations
