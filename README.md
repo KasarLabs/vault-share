@@ -3,25 +3,27 @@
 > A complete treasury solution enabling teams to manage shared funds with individual spending limits and automatic gas sponsorship.
 
 
-## What is VaultShare?
+## 🎯 What is VaultShare?
 
 VaultShare is a smart contract system that allows teams (DAOs, companies, guilds) to manage a shared treasury on Starknet while giving individual members controlled access to funds. Think of it as **corporate cards for your DAO**.
 
 ### Key Features
-- **Shared Treasury** : Central vault holding team funds
-- **Individual Limits** : Each member has customizable spending limits
-- **Gas Sponsorship** :Vault automatically pays transaction fees for members
-- **Multi-Token Support** : Manage any ERC-20 token (STRK, ETH, USDC, etc.)
-- **Pause Mechanism**: Emergency stop for critical situations
 
-## Use Cases
+✅ **Shared Treasury** - Central vault holding team funds
+✅ **Individual Limits** - Each member has customizable spending limits
+✅ **Gas Sponsorship** - Vault automatically pays transaction fees for members
+✅ **Multi-Token Support** - Manage any ERC-20 token (STRK, ETH, USDC, etc.)
+✅ **Pause Mechanism** - Emergency stop for critical situations
+✅ **Battle-Tested** - Built with OpenZeppelin contracts and reentrancy guards
+
+## 💡 Use Cases
 
 - **DAO Operations**: Give council members budgets without exposing the entire treasury
 - **Web3 Teams**: Developers get spending limits for gas and services
 - **Gaming Guilds**: Players access guild funds within their allowances
 - **Investment Funds**: Traders operate with predefined risk limits
 
-## How It Works
+## 🏗️ How It Works
 
 ### The Two-Account System
 
@@ -38,10 +40,10 @@ TeamVault (Treasury)
         └─ Bob (Member)
             └─ Worker Account (0x456...) - Bob's smart wallet
                 ├─ Spending limit: 500 STRK
-                └─ Gas fees paid by vault ✨
+                └─ ...
 ```
 
-## Quick Start
+## 🚀 Quick Start
 
 ### Prerequisites
 
@@ -61,7 +63,8 @@ scarb build
 
 # Register a wallet to be able to deploy and read/write contracts
 sncast account import \
-  --network $NETWORK \
+  --name jean \
+  --network mainnet \
   --address 0x123456 \
   --private-key 0x789123 \
   --type argent
@@ -74,7 +77,7 @@ sncast account import \
 # Save the returned vault address: VAULT_ADDRESS=0x...
 ```
 
-### 2. Initial Configuration
+### 2. Initial Configuration of the vault
 
 ```bash
 VAULT_ADDRESS="0x..."  # From step 1
@@ -85,36 +88,17 @@ sncast invoke \
   --contract-address $VAULT_ADDRESS \
   --function set_strk_token \
   --arguments $STRK_TOKEN \
-  --network $NETWORK
+  --network mainnet
 
 # Allow STRK for withdrawals
 sncast invoke \
   --contract-address $VAULT_ADDRESS \
   --function allow_token \
   --arguments $STRK_TOKEN \
-  --network $NETWORK
+  --network mainnet
 ```
 
-### 3. Add Team Members
-
-```bash
-# Add Alice to the team
-ALICE_PUBKEY="0xABC..."
-sncast invoke \
-  --contract-address $VAULT_ADDRESS \
-  --function add_member \
-  --arguments $ALICE_PUBKEY \
-  --network $NETWORK
-
-# Set Alice's spending limit to 1000 STRK
-sncast invoke \
-  --contract-address $VAULT_ADDRESS \
-  --function set_withdraw_limit \
-  --arguments $ALICE_PUBKEY $STRK_TOKEN 1000000000000000000000 0 \
-  --network $NETWORK
-```
-
-### 4. Deploy Worker Accounts
+### 3. Deploy Worker Accounts
 
 ```bash
 # Deploy a worker for Alice
@@ -127,19 +111,35 @@ sncast invoke \
 # Private key: 0xDEF... (SAVE THIS!)
 ```
 
-### 5. Register Workers
+### 4. Register Workers
 
 ```bash
-ALICE_WORKER="0x789..."  # From step 4
+ALICE_WORKER="0x789..."  # From step 3
 
+# Add Alice to the team
+ALICE_PUBKEY="0xABC..."
+sncast invoke \
+  --contract-address $VAULT_ADDRESS \
+  --function add_member \
+  --arguments $ALICE_PUBKEY \
+  --network mainnet
+
+# Set Alice's spending limit to 1000 STRK
+sncast invoke \
+  --contract-address $VAULT_ADDRESS \
+  --function set_withdraw_limit \
+  --arguments '$ALICE_PUBKEY, $STRK_TOKEN, 1000000000000000000000' \
+  --network mainnet
+
+# Register Alice's worker
 sncast invoke \
   --contract-address $VAULT_ADDRESS \
   --function register_worker \
-  --arguments $ALICE_PUBKEY $ALICE_WORKER \
-  --network $NETWORK
+  --arguments '$ALICE_PUBKEY, $ALICE_WORKER' \
+  --network mainnet
 ```
 
-### 6. Fund the Vault
+### 5. Fund the Vault
 
 Transfer STRK tokens to your vault address using any wallet.
 
@@ -149,10 +149,10 @@ sncast call \
   --contract-address $STRK_TOKEN \
   --function balanceOf \
   --arguments $VAULT_ADDRESS \
-  --network $NETWORK
+  --network mainnet
 ```
 
-## Usage Guide
+## 📖 Usage Guide
 
 ### For Members: Making Withdrawals
 
@@ -170,9 +170,9 @@ sncast account import \
 sncast invoke \
   --contract-address $VAULT_ADDRESS \
   --function withdraw \
-  --arguments $STRK_TOKEN 100000000000000000000 0 \
+  --arguments '$STRK_TOKEN, 100000000000000000000' \
   --account alice-worker \
-  --network $NETWORK
+  --network mainnet
 
 ```
 
@@ -183,29 +183,29 @@ sncast invoke \
 sncast invoke \
   --contract-address $VAULT_ADDRESS \
   --function add_members \
-  --arguments 3 $ALICE_PUBKEY $BOB_PUBKEY $CHARLIE_PUBKEY \
-  --network $NETWORK
+  --arguments '$ALICE_PUBKEY, $BOB_PUBKEY, $CHARLIE_PUBKEY' \
+  --network mainnet
 
 # Deactivate a member temporarily (without removing)
 sncast invoke \
   --contract-address $VAULT_ADDRESS \
   --function set_member_active \
-  --arguments $ALICE_PUBKEY 0 \
-  --network $NETWORK
+  --arguments $ALICE_PUBKEY \
+  --network mainnet
 
 # Reset a member's spent amount (monthly reset)
 sncast invoke \
   --contract-address $VAULT_ADDRESS \
   --function reset_spent \
-  --arguments $ALICE_PUBKEY $STRK_TOKEN \
-  --network $NETWORK
+  --arguments '$ALICE_PUBKEY, $STRK_TOKEN' \
+  --network mainnet
 
 # Emergency pause
 sncast invoke \
   --contract-address $VAULT_ADDRESS \
   --function pause \
   --arguments 1 \
-  --network $NETWORK
+  --network mainnet
 ```
 
 ### Querying State
@@ -215,25 +215,25 @@ sncast invoke \
 sncast call \
   --contract-address $VAULT_ADDRESS \
   --function get_withdraw_spent \
-  --arguments $ALICE_PUBKEY $STRK_TOKEN \
-  --network $NETWORK
+  --arguments '$ALICE_PUBKEY, $STRK_TOKEN' \
+  --network mainnet
 
 # Check member's limit
 sncast call \
   --contract-address $VAULT_ADDRESS \
   --function get_withdraw_limit \
-  --arguments $ALICE_PUBKEY $STRK_TOKEN \
-  --network $NETWORK
+  --arguments '$ALICE_PUBKEY, $STRK_TOKEN' \
+  --network mainnet
 
 # Get worker for a member
 sncast call \
   --contract-address $VAULT_ADDRESS \
   --function get_worker_for_member \
   --arguments $ALICE_PUBKEY \
-  --network $NETWORK
+  --network mainnet
 ```
 
-## Security Features
+## 🔐 Security Features
 
 ### Reentrancy Protection
 Uses OpenZeppelin's `ReentrancyGuard` component to prevent reentrancy attacks.
@@ -277,7 +277,6 @@ Workers are cryptographically linked to members and verified on registration.
 ## 📄 License
 
 MIT License 
-
 
 ---
 
