@@ -67,7 +67,7 @@ scarb build
 ```bash
 # Register a wallet to be able to deploy and read/write contracts
 sncast account import \
-  --network mainnet \
+  --network $NETWORK \
   --address 0x123456 \
   --private-key 0x789123 \
   --type argent
@@ -91,14 +91,14 @@ sncast invoke \
   --contract-address $VAULT_ADDRESS \
   --function set_strk_token \
   --arguments $STRK_TOKEN \
-  --network sepolia
+  --network $NETWORK
 
 # Allow STRK for withdrawals
 sncast invoke \
   --contract-address $VAULT_ADDRESS \
   --function allow_token \
   --arguments $STRK_TOKEN \
-  --network sepolia
+  --network $NETWORK
 ```
 
 ### 3. Add Team Members
@@ -110,14 +110,14 @@ sncast invoke \
   --contract-address $VAULT_ADDRESS \
   --function add_member \
   --arguments $ALICE_PUBKEY \
-  --network sepolia
+  --network $NETWORK
 
 # Set Alice's spending limit to 1000 STRK
 sncast invoke \
   --contract-address $VAULT_ADDRESS \
   --function set_withdraw_limit \
   --arguments $ALICE_PUBKEY $STRK_TOKEN 1000000000000000000000 0 \
-  --network sepolia
+  --network $NETWORK
 ```
 
 ### 4. Deploy Worker Accounts
@@ -142,7 +142,7 @@ sncast invoke \
   --contract-address $VAULT_ADDRESS \
   --function register_worker \
   --arguments $ALICE_PUBKEY $ALICE_WORKER \
-  --network sepolia
+  --network $NETWORK
 ```
 
 ### 6. Fund the Vault
@@ -155,7 +155,7 @@ sncast call \
   --contract-address $STRK_TOKEN \
   --function balanceOf \
   --arguments $VAULT_ADDRESS \
-  --network sepolia
+  --network $NETWORK
 ```
 
 ## 📖 Usage Guide
@@ -178,7 +178,7 @@ sncast invoke \
   --function withdraw \
   --arguments $STRK_TOKEN 100000000000000000000 0 \
   --account alice-worker \
-  --network sepolia
+  --network $NETWORK
 
 ```
 
@@ -190,28 +190,28 @@ sncast invoke \
   --contract-address $VAULT_ADDRESS \
   --function add_members \
   --arguments 3 $ALICE_PUBKEY $BOB_PUBKEY $CHARLIE_PUBKEY \
-  --network sepolia
+  --network $NETWORK
 
 # Deactivate a member temporarily (without removing)
 sncast invoke \
   --contract-address $VAULT_ADDRESS \
   --function set_member_active \
   --arguments $ALICE_PUBKEY 0 \
-  --network sepolia
+  --network $NETWORK
 
 # Reset a member's spent amount (monthly reset)
 sncast invoke \
   --contract-address $VAULT_ADDRESS \
   --function reset_spent \
   --arguments $ALICE_PUBKEY $STRK_TOKEN \
-  --network sepolia
+  --network $NETWORK
 
 # Emergency pause
 sncast invoke \
   --contract-address $VAULT_ADDRESS \
   --function pause \
   --arguments 1 \
-  --network sepolia
+  --network $NETWORK
 ```
 
 ### Querying State
@@ -222,21 +222,21 @@ sncast call \
   --contract-address $VAULT_ADDRESS \
   --function get_withdraw_spent \
   --arguments $ALICE_PUBKEY $STRK_TOKEN \
-  --network sepolia
+  --network $NETWORK
 
 # Check member's limit
 sncast call \
   --contract-address $VAULT_ADDRESS \
   --function get_withdraw_limit \
   --arguments $ALICE_PUBKEY $STRK_TOKEN \
-  --network sepolia
+  --network $NETWORK
 
 # Get worker for a member
 sncast call \
   --contract-address $VAULT_ADDRESS \
   --function get_worker_for_member \
   --arguments $ALICE_PUBKEY \
-  --network sepolia
+  --network $NETWORK
 ```
 
 ## 🔐 Security Features
@@ -255,26 +255,6 @@ Admin can pause all operations in case of emergency.
 
 ### Worker Validation
 Workers are cryptographically linked to members and verified on registration.
-
-
-### Batch Operations
-
-```bash
-# Register multiple workers at once
-sncast invoke \
-  --contract-address $VAULT_ADDRESS \
-  --function register_workers \
-  --arguments 2 $ALICE_PUBKEY $BOB_PUBKEY 2 $ALICE_WORKER $BOB_WORKER \
-  --network sepolia
-
-# Fund multiple worker deployments
-sncast invoke \
-  --contract-address $VAULT_ADDRESS \
-  --function fund_workers_deployment \
-  --arguments 2 $ALICE_PUBKEY $BOB_PUBKEY 2 $WORKER1 $WORKER2 2 100000000000000000000 0 100000000000000000000 0 \
-  --network sepolia
-```
-
 
 
 ## 📊 Gas & Fees
