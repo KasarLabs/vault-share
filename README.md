@@ -53,18 +53,14 @@ curl --proto '=https' --tlsv1.2 -sSf https://docs.swmansion.com/scarb/install.sh
 
 # Install Starknet Foundry
 curl -L https://raw.githubusercontent.com/foundry-rs/starknet-foundry/master/scripts/install.sh | sh
-```
 
-```bash
 # Clone the repository
 git clone <your-repo>
 cd vault-share
 
 # Build contracts
 scarb build
-```
 
-```bash
 # Register a wallet to be able to deploy and read/write contracts
 sncast account import \
   --network $NETWORK \
@@ -282,7 +278,7 @@ Workers are cryptographically linked to members and verified on registration.
 
 ## 📄 License
 
-MIT License - see LICENSE file for details
+MIT License 
 
 
 ---
