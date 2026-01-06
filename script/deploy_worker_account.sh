@@ -85,6 +85,8 @@ echo ""
 echo "Setting vault address on worker..."
 echo "  Vault: $VAULT_ADDRESS"
 
+sleep 20 
+
 sncast invoke \
   --contract-address $WORKER_ADDRESS \
   --function set_vault \
